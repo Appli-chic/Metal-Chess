@@ -1,11 +1,12 @@
 import MetalKit
 
 class Renderer: NSObject, MTKViewDelegate {
-    let parent: ContentView
-    var metalDevice: MTLDevice!
-    let metalCommandQueue: MTLCommandQueue!
-    let pipelineState: MTLRenderPipelineState
-    let vertexBuffer: MTLBuffer
+    private let board: Board
+    private let parent: ContentView
+    
+    private var metalDevice: MTLDevice!
+    private let metalCommandQueue: MTLCommandQueue!
+    private let pipelineState: MTLRenderPipelineState
     
     init(parent: ContentView) {
         self.parent = parent
@@ -27,21 +28,7 @@ class Renderer: NSObject, MTKViewDelegate {
             fatalError()
         }
         
-        let vertices = [
-            Vertex(position: [-0.5, 0.5], color: [1, 0, 0, 1]),
-            Vertex(position: [0.5, 0.5], color: [1, 0, 0, 1]),
-            Vertex(position: [0.5, -0.5], color: [1, 0, 0, 1]),
-            
-            Vertex(position: [-0.5, 0.5], color: [1, 0, 0, 1]),
-            Vertex(position: [-0.5, -0.5], color: [1, 0, 0, 1]),
-            Vertex(position: [0.5, -0.5], color: [1, 0, 0, 1]),
-        ]
-        
-        self.vertexBuffer = metalDevice.makeBuffer(
-            bytes: vertices,
-            length: vertices.count * MemoryLayout<Vertex>.stride,
-            options: [],
-        )!
+        self.board = Board(metalDevice: self.metalDevice)
         
         super.init()
     }
@@ -62,14 +49,13 @@ class Renderer: NSObject, MTKViewDelegate {
         renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColor(red: 0.0, green: 0.5, blue: 0.5, alpha: 1.0)
         renderPassDescriptor.colorAttachments[0].loadAction = .clear
         renderPassDescriptor.colorAttachments[0].storeAction = .store
-        
+
         let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor)
-        
         renderEncoder?.setRenderPipelineState(pipelineState)
-        renderEncoder?.setVertexBuffer(vertexBuffer, offset: 0, index: 0)
-        renderEncoder?.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 6)
-        renderEncoder?.endEncoding()
         
+        board.draw(renderEncoder: renderEncoder)
+        
+        renderEncoder?.endEncoding()
         commandBuffer.present(drawable)
         commandBuffer.commit()
     }
