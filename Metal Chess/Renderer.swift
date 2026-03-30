@@ -47,23 +47,26 @@ class Renderer: NSObject, MTKViewDelegate {
     }
     
     func draw(in view: MTKView) {
-        guard let drawable = view.currentDrawable else { return }
+        guard
+            let drawable = view.currentDrawable,
+            let renderPassDescriptor = view.currentRenderPassDescriptor,
+            let commandBuffer = metalCommandQueue.makeCommandBuffer()
+        else {
+            return
+        }
         
-        let commandBuffer = metalCommandQueue.makeCommandBuffer()
+        renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColor(red: 0.0, green: 0.5, blue: 0.5, alpha: 1.0)
+        renderPassDescriptor.colorAttachments[0].loadAction = .clear
+        renderPassDescriptor.colorAttachments[0].storeAction = .store
         
-        let renderPassDescriptor = view.currentRenderPassDescriptor
-        renderPassDescriptor?.colorAttachments[0].clearColor = MTLClearColor(red: 0.0, green: 0.5, blue: 0.5, alpha: 1.0)
-        renderPassDescriptor?.colorAttachments[0].loadAction = .clear
-        renderPassDescriptor?.colorAttachments[0].storeAction = .store
-        
-        let renderEncoder = commandBuffer?.makeRenderCommandEncoder(descriptor: renderPassDescriptor!)
+        let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor)
         
         renderEncoder?.setRenderPipelineState(pipelineState)
         renderEncoder?.setVertexBuffer(vertexBuffer, offset: 0, index: 0)
         renderEncoder?.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 3)
-        
         renderEncoder?.endEncoding()
-        commandBuffer?.present(drawable)
-        commandBuffer?.commit()
+        
+        commandBuffer.present(drawable)
+        commandBuffer.commit()
     }
 }
