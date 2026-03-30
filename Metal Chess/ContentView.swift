@@ -1,24 +1,34 @@
-//
-//  ContentView.swift
-//  Metal Chess
-//
-//  Created by Guillaume Belouin on 30/03/2026.
-//
-
 import SwiftUI
+import MetalKit
 
-struct ContentView: View {
-    var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+struct ContentView: NSViewRepresentable {
+    func makeCoordinator() -> Renderer {
+        Renderer(parent: self)
+    }
+    
+    func makeNSView(context: NSViewRepresentableContext<ContentView>) -> MTKView {
+        let mtkView = MTKView()
+        mtkView.delegate = context.coordinator
+        mtkView.preferredFramesPerSecond = 120
+        mtkView.enableSetNeedsDisplay = true
+        
+        if let metalDevice = MTLCreateSystemDefaultDevice() {
+            mtkView.device = metalDevice
         }
-        .padding()
+        
+        mtkView.framebufferOnly = false
+        mtkView.drawableSize = mtkView.frame.size
+        
+        return mtkView
+    }
+    
+    func updateNSView(_ nsView: MTKView, context: NSViewRepresentableContext<ContentView>) {
+        
     }
 }
 
 #Preview {
-    ContentView()
+    Group {
+        ContentView()
+    }
 }
