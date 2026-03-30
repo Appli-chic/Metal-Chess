@@ -28,9 +28,13 @@ class Renderer: NSObject, MTKViewDelegate {
         }
         
         let vertices = [
-            Vertex(position: [-0.5, 1], color: [1, 0, 0, 1]),
-            Vertex(position: [0.5, 1], color: [1, 0, 0, 1]),
-            Vertex(position: [0, -1], color: [1, 0, 0, 1]),
+            Vertex(position: [-0.5, 0.5], color: [1, 0, 0, 1]),
+            Vertex(position: [0.5, 0.5], color: [1, 0, 0, 1]),
+            Vertex(position: [0.5, -0.5], color: [1, 0, 0, 1]),
+            
+            Vertex(position: [-0.5, 0.5], color: [1, 0, 0, 1]),
+            Vertex(position: [-0.5, -0.5], color: [1, 0, 0, 1]),
+            Vertex(position: [0.5, -0.5], color: [1, 0, 0, 1]),
         ]
         
         self.vertexBuffer = metalDevice.makeBuffer(
@@ -63,7 +67,7 @@ class Renderer: NSObject, MTKViewDelegate {
         
         renderEncoder?.setRenderPipelineState(pipelineState)
         renderEncoder?.setVertexBuffer(vertexBuffer, offset: 0, index: 0)
-        renderEncoder?.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 3)
+        renderEncoder?.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 6)
         renderEncoder?.endEncoding()
         
         commandBuffer.present(drawable)
