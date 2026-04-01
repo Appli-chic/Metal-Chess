@@ -1,13 +1,15 @@
 import MetalKit
 
+private let BOARD_SIZE = 8
+
 class Board {
     private var tiles: [[Tile]] = []
     
     init(metalDevice: MTLDevice) {
-        for y in 0..<9 {
+        for y in 0..<BOARD_SIZE+1 {
             var tileRow: [Tile] = []
             
-            for x in 0..<9 {
+            for x in 0..<BOARD_SIZE+1 {
                 tileRow.append(Tile(metalDevice: metalDevice, x: x, y: y))
             }
             
@@ -31,30 +33,22 @@ class Tile {
         let black: vector_float4 = [0, 0, 0, 1]
         let white: vector_float4 = [1, 1, 1, 1]
         
-        let color: vector_float4 = if(x % 2 == 0) {
-            if(y % 2 == 0) {
-                black
-            } else {
-                white
-            }
+        let isRowEven = x % 2 == 0 && y % 2 == 0
+        let isColumnOdd = x % 2 != 0 && y % 2 != 0
+        let color: vector_float4 = if(isRowEven || isColumnOdd) {
+            black
         } else {
-            if(y % 2 == 0) {
-                white
-            } else {
-                black
-            }
+            white
         }
         
-        let tileSize: Float = 2 / 8
-        let floatX = Float(x)
-        let floatY = Float(y)
-        let positionX = -1 + (tileSize * floatX)
-        let positionY = 1 - (tileSize * floatY)
+        let tileSize: Float = 2 / Float(BOARD_SIZE)
+        let positionX = -1 + (tileSize * Float(x))
+        let positionY = -1 + (tileSize * Float(y))
         
-        let topLeftVertex = Vertex(position: [positionX, positionY], color: color)
-        let topRightVertex = Vertex(position: [positionX + tileSize, positionY], color: color)
-        let bottomRightVertex = Vertex(position: [positionX + tileSize, positionY + tileSize], color: color)
-        let bottomLeftVertex = Vertex(position: [positionX, positionY + tileSize], color: color)
+        let bottomLeftVertex = Vertex(position: [positionX, positionY], color: color)
+        let bottomRightVertex = Vertex(position: [positionX + tileSize, positionY], color: color)
+        let topRightVertex = Vertex(position: [positionX + tileSize, positionY + tileSize], color: color)
+        let topLeftVertex = Vertex(position: [positionX, positionY + tileSize], color: color)
         
         let vertices = [
             topLeftVertex,
