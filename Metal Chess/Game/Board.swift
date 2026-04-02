@@ -4,13 +4,14 @@ private let BOARD_SIZE = 8
 
 class Board {
     private let vertexBuffer: MTLBuffer
-    private var vertexSize: Int = 0
+    private let vertexCount = BOARD_SIZE * BOARD_SIZE * 6
     
     init(metalDevice: MTLDevice) {
         let black: vector_float4 = [0, 0, 0, 1]
         let white: vector_float4 = [1, 1, 1, 1]
         let tileSize: Float = 2 / Float(BOARD_SIZE)
         var vertices: [Vertex] = []
+        vertices.reserveCapacity(vertexCount)
         
         for y in 0..<BOARD_SIZE {
             for x in 0..<BOARD_SIZE {
@@ -28,7 +29,6 @@ class Board {
                 let topRightVertex = Vertex(position: [positionX + tileSize, positionY + tileSize], color: color)
                 let topLeftVertex = Vertex(position: [positionX, positionY + tileSize], color: color)
                 
-                self.vertexSize += 6;
                 vertices.append(contentsOf: [
                     topLeftVertex,
                     topRightVertex,
@@ -44,12 +44,12 @@ class Board {
         self.vertexBuffer = metalDevice.makeBuffer(
             bytes: vertices,
             length: vertices.count * MemoryLayout<Vertex>.stride,
-            options: [],
+            options: .storageModeShared,
         )!
     }
     
     func draw(renderEncoder: MTLRenderCommandEncoder?) {
         renderEncoder?.setVertexBuffer(vertexBuffer, offset: 0, index: 0)
-        renderEncoder?.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: self.vertexSize)
+        renderEncoder?.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: vertexCount)
     }
 }
