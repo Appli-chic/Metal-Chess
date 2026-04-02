@@ -6,10 +6,10 @@ class Board {
     private var tiles: [[Tile]] = []
     
     init(metalDevice: MTLDevice) {
-        for y in 0..<BOARD_SIZE+1 {
+        for y in 0..<BOARD_SIZE {
             var tileRow: [Tile] = []
             
-            for x in 0..<BOARD_SIZE+1 {
+            for x in 0..<BOARD_SIZE {
                 tileRow.append(Tile(metalDevice: metalDevice, x: x, y: y))
             }
             
@@ -33,9 +33,7 @@ class Tile {
         let black: vector_float4 = [0, 0, 0, 1]
         let white: vector_float4 = [1, 1, 1, 1]
         
-        let isRowEven = x % 2 == 0 && y % 2 == 0
-        let isColumnOdd = x % 2 != 0 && y % 2 != 0
-        let color: vector_float4 = if(isRowEven || isColumnOdd) {
+        let color: vector_float4 = if (x + y) % 2 == 0 {
             black
         } else {
             white
