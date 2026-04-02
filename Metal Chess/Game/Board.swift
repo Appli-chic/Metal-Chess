@@ -52,13 +52,10 @@ class Board {
     }
     
     private static func getTileColor(x: Int, y: Int) -> vector_float4 {
-        let black: vector_float4 = [0, 0, 0, 1]
-        let white: vector_float4 = [1, 1, 1, 1]
-        
         return if (x + y) % 2 == 0 {
-            black
+            [0, 0, 0, 1]
         } else {
-            white
+            [1, 1, 1, 1]
         }
     }
 }
