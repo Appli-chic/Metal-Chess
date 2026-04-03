@@ -53,7 +53,7 @@ class Renderer: NSObject, MTKViewDelegate {
         let renderEncoder = commandBuffer.makeRenderCommandEncoder(descriptor: renderPassDescriptor)
         renderEncoder?.setRenderPipelineState(pipelineState)
         
-        board.draw(renderEncoder: renderEncoder)
+        board.draw(metalDevice: metalDevice, renderEncoder: renderEncoder)
         
         renderEncoder?.endEncoding()
         commandBuffer.present(drawable)
